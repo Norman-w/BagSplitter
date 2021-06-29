@@ -1,0 +1,87 @@
+.main
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(49, 70, 203, 0.1);
+    margin: 20px;
+    padding: 10px;
+    width: 800px;
+    /*height: 600px;*/
+    border-radius: 10px;
+    box-shadow: 10px 10px 60px 8px #2751a3;
+    /*filter: blur(9px);*/
+    animation:shad 1s infinite forwards;
+    /*-webkit-animation: shad 1s infinite;*/
+    /*animation-iteration-count: 2;*/
+    animation-direction: alternate;
+}
+@keyframes shad {
+    from{
+        /*background-color: #07577f;*/
+        /*filter: blur(9px);*/
+    }
+    to
+    {
+        /*filter: blur(15px);*/
+    }
+}
+
+.items
+{
+    color: #6398f8;
+     text-shadow: 2px 2px 3px #54addc;
+    border-radius: 10px;
+    font-size: 30px;
+    /*background-color:seagreen;*/
+    width: 100%;
+    height: 100%;
+    /*margin: 10px;*/
+    /*padding: 10px;*/
+    border: dashed 1px rgba(135, 206, 235, 0.21);
+}
+
+
+/*下面代码可以在黑色背景下实现两个鬼眼睛的效果*/
+/*.main*/
+/*{*/
+/*    background-color: rgba(49, 70, 203, 0.1);*/
+/*    margin: 60px;*/
+/*    !*width: 500px;*!*/
+/*    !*height: 800px;*!*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 10px 10px 60px 8px #2751a3;*/
+/*    filter: blur(18px);*/
+/*    width:100px;*/
+/*    height:100px;*/
+/*    background:red;*/
+/*    position:relative;*/
+/*    animation:mymove 5s infinite;*/
+/*    -moz-animation:mymove 5s infinite; !* Firefox *!*/
+/*    -webkit-animation:mymove 5s infinite; !* Safari and Chrome *!*/
+/*    -o-animation:mymove 5s infinite; !* Opera *!*/
+/*}*/
+/*@keyframes mymove*/
+/*{*/
+/*    from {top:0px;}*/
+/*    to {top:200px;}*/
+/*}*/
+
+/*@-moz-keyframes mymove !* Firefox *!*/
+/*{*/
+/*    from {top:0px;}*/
+/*    to {top:200px;}*/
+/*}*/
+
+/*@-webkit-keyframes mymove !* Safari and Chrome *!*/
+/*{*/
+/*    from {top:0px;}*/
+/*    to {top:200px;}*/
+/*}*/
+
+/*@-o-keyframes mymove !* Opera *!*/
+/*{*/
+/*    from {top:0px;}*/
+/*    to {top:200px;}*/
+/*}*/
