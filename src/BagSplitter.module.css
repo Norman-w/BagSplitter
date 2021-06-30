@@ -4,7 +4,39 @@
     width: 100%;
     /*height: 100vh;*/
     display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    /*border: 1px solid darkgoldenrod;*/
+}
+.saveBtn
+{
+    background-color: transparent;
+    /*filter: blur(10px);*/
+    width: 120px;
+    height: 30px;
+    display: flex;
     flex-direction: row;
     justify-content: space-around;
-    /*border: 1px solid darkgoldenrod;*/
+    align-items: center;
+    border-radius: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-shadow: 0 0 2px 3px rgba(135, 206, 235, 0.37);
+    font-size: 20px;
+    color: rgba(84, 173, 220, 0.55);
+    cursor: pointer;
+    user-select: none;
+    transition: 0.4s;
+}
+.saveBtnHover
+{
+    composes: saveBtn;
+    color: #83a8ec;
+    transition: 0.4s;
+}
+.saveBtnText
+{
+    font-weight: bold;
+    text-shadow: 1px 1px 3px darkcyan;
 }

@@ -1590,6 +1590,21 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
+"@sweetalert2/theme-borderless@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.nlark.com/@sweetalert2/theme-borderless/download/@sweetalert2/theme-borderless-5.0.1.tgz#27367f8184c03b6941ee6edeb443045c3c74a9ad"
+  integrity sha1-JzZ/gYTAO2lB7m7etEMEXDx0qa0=
+
+"@sweetalert2/theme-dark@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.nlark.com/@sweetalert2/theme-dark/download/@sweetalert2/theme-dark-5.0.1.tgz#34fcf821b3d9a55f4e82b45bc3a742fd54cdc26d"
+  integrity sha1-NPz4IbPZpV9OgrRbw6dC/VTNwm0=
+
+"@sweetalert2/theme-wordpress-admin@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.nlark.com/@sweetalert2/theme-wordpress-admin/download/@sweetalert2/theme-wordpress-admin-5.0.1.tgz#77a6a87fa1925e8e1cb417883a62de5c0a070638"
+  integrity sha1-d6aof6GSXo4ctBeIOmLeXAoHBjg=
+
 "@testing-library/dom@^7.28.1":
   version "7.31.2"
   resolved "https://registry.nlark.com/@testing-library/dom/download/@testing-library/dom-7.31.2.tgz#df361db38f5212b88555068ab8119f5d841a8c4a"

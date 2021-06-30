@@ -8,7 +8,7 @@ class BagItemsShower extends Component {
         return (
             <div className={classNames.main}>
                 <div className={classNames.items}>
-                    <ItemsDND sourceBag={this.props.sourceBag}/>
+                    <ItemsDND sourceBag={this.props.sourceBag} onItemsChanged={this.props.onItemsChanged}/>
                 </div>
             </div>
         );

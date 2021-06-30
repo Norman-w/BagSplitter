@@ -3,6 +3,8 @@ import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import classNames from './ItemsDND.module.css';
 // import itemClassNames from './Item.module.css'
 import Swal2 from 'sweetalert2';
+// import Swal from 'sweetalert2/src/sweetalert2.js'
+// import '@sweetalert2/theme-borderless/borderless.min.css';
 import Item from "./Item";
 
 //region 全局数据
@@ -70,10 +72,10 @@ const reorder = (list, startIndex, endIndex) => {
 
 //region  设置样式:获取给定参数的list内的元素的样式
 const getItemStyle = (that, item, isDragging, draggableStyle,snapshot,provided) => {
-  if (isDragging)
-  {
-    console.log('当前元素正在拖拽,参数1:',snapshot,'参数2:', provided)
-  }
+  // if (isDragging)
+  // {
+  //   console.log('当前元素正在拖拽,参数1:',snapshot,'参数2:', provided)
+  // }
     // console.log('获取样式:选择了吗?',item, '当前的选中的id是:', that.state)
     // console.log('是否一样?',item.id === that.state.selectedItemId)
     let isSelected = item.id === that.state.selectedItemId;
@@ -126,7 +128,7 @@ const getItemStyle = (that, item, isDragging, draggableStyle,snapshot,provided) 
 //region 获取list外框的样式
 const getListStyle = (snap) =>
 {
-    console.log('snap is :', snap)
+    // console.log('snap is :', snap)
     let style = {
         // background: '#eff5ef',
         // padding: grid,
@@ -144,7 +146,7 @@ const getListStyle = (snap) =>
 };
 const getListClass = (snap)=>
 {
-    console.log('snap is :', snap)
+    // console.log('snap is :', snap)
     if (snap.isDraggingOver)
     {
         return classNames.columnTo;
@@ -169,12 +171,13 @@ export default class ItemsDND extends Component {
         selectedItemId: null,
         showAddBtn: false,
     }
-
+    onItemsChanged
     //构造函数
     constructor(props) {
         super(props);
         let sourceItems = getItems3(this.props.sourceBag.Items?this.props.sourceBag.Items:[]);
         let bagId = this.props.sourceBag.Pid;
+        this.onItemsChanged = this.props.onItemsChanged;
         this.state = {
             sourceItems: sourceItems,
             destItems:[],
@@ -195,7 +198,7 @@ export default class ItemsDND extends Component {
 
 
     //当用户拖拽结束
-    onDragEnd(result) {
+    async onDragEnd(result) {
         // console.log('拖拽结束,result',result);
         // dropped outside the list
       //没有被放置的目标,不进行数据变更
@@ -241,6 +244,41 @@ export default class ItemsDND extends Component {
                 //往原包裹里面拽
                 fromList = this.state.destItems;
                 toList = this.state.sourceItems;
+
+                //在原表中的位置
+                let needMoveItem = fromList[result.source.index];//fromList.splice(result.source.index,1);
+
+                //region 如果原始包裹表中有这个
+                console.log('全部移动过去');
+                //region 全部移动的时候也要检测一下 目标表中是不是有这个商品.比如一共原始包裹中有10个,第一次移动过去了3个,第二次把剩余的全部都移动过去,这时候我们不能展示两行,而是要把3+7合并在一起
+                let destItem = null;
+                for (let i = 0; i < toList.length; i++) {
+                    if(toList[i].Name === needMoveItem.Name)
+                    {
+                        destItem = toList[i];
+                    }
+                }
+                //region 如果原始表中有
+                if(destItem)
+                {
+                    if(!destItem.Count)
+                    {
+                        destItem.Count = 0;
+                    }
+                    destItem.Count += needMoveItem.Count;
+                }
+                //endregion
+                //region 如果原始表中没有
+                else
+                {
+                    toList.splice(result.destination.index,0,needMoveItem);
+                }
+                //endregion
+                //endregion
+                fromList.splice(result.source.index,1);
+                this.setState({sourceItems:this.state.sourceItems,destItems:this.state.destItems});
+                //endregion
+
             }
             //从原始包裹拽到新包裹中.
             else if(result.destination.droppableId === destBagItemsListName)
@@ -249,14 +287,142 @@ export default class ItemsDND extends Component {
                 fromList = this.state.sourceItems;
                 toList = this.state.destItems;
                 //等待用户的返回.如果输入了有效的数量,才能够让数据继续变更,否则不可以.
+                let needMoveItem = this.state.sourceItems[result.source.index];
 
+                //region 如果要移动的商品只有一个 那就直接移动过去好了,不需要确认选择的数量
+                if (needMoveItem.Count ===1)
+                {
+                    //在原表中的位置
+                    fromList.splice(result.source.index,1);
+                    //region 全部移动的时候也要检测一下 目标表中是不是有这个商品.比如一共原始包裹中有10个,第一次移动过去了3个,第二次把剩余的全部都移动过去,这时候我们不能展示两行,而是要把3+7合并在一起
+                    let destItem = null;
+                    for (let i = 0; i < toList.length; i++) {
+                        if(toList[i].Name === needMoveItem.Name)
+                        {
+                            destItem = toList[i];
+                        }
+                    }
+                    if(destItem)
+                    {
+                        if(!destItem.Count)
+                        {
+                            destItem.Count = 0;
+                        }
+                        destItem.Count += 1;
+                    }
+                    else
+                    {
+                        toList.splice(result.destination.index,0,needMoveItem);
+                    }
+                    //endregion
+                    this.setState({sourceItems:this.state.sourceItems,destItems:this.state.destItems});
+                }
+                //endregion
+                //region 如果要移动的商品有2个或者以上,使用范围选择,让用户选择具体移动多少个出去
+                else
+                {
+                    let ret = await Swal2.fire({
+                        title: needMoveItem.Name,
+                        icon: 'question',
+                        input: 'range',
+                        confirmButtonText:'确认',
+                        showCloseButton:true,
+                        inputLabel: '将多少个该商品加入到新包裹?',
+                        inputAttributes: {
+                            min: 1,
+                            max: needMoveItem.Count,
+                            step: 1
+                        },
+                        inputValue: needMoveItem.Count
+                    })
+                    if (ret.isConfirmed && ret.value)
+                    {
+                        //有效的操作,如果是全部移动过去,那就移动过去全部,如果不是全部移动过去,把表拆分开
+                        let moveCount = parseInt(ret.value);
+                        //全部移动
+                        if (moveCount === needMoveItem.Count)
+                        {
+                            console.log('全部移动过去');
+                            //在原表中的位置
+                            fromList.splice(result.source.index,1);
+                            //region 全部移动的时候也要检测一下 目标表中是不是有这个商品.比如一共原始包裹中有10个,第一次移动过去了3个,第二次把剩余的全部都移动过去,这时候我们不能展示两行,而是要把3+7合并在一起
+                            let destItem = null;
+                            for (let i = 0; i < toList.length; i++) {
+                                if(toList[i].Name === needMoveItem.Name)
+                                {
+                                    destItem = toList[i];
+                                }
+                            }
+                            if(destItem)
+                            {
+                                if(!destItem.Count)
+                                {
+                                    destItem.Count = 0;
+                                }
+                                destItem.Count += moveCount;
+                            }
+                            else
+                            {
+                                toList.splice(result.destination.index,0,needMoveItem);
+                            }
+                            //endregion
+                            this.setState({sourceItems:this.state.sourceItems,destItems:this.state.destItems});
+                        }
+                        //部分移动
+                        else
+                        {
+                            console.log('移动过去部分')
+                            //要移动过去一部分的话,原来表中,数量修改, 新的表中,如果已经存在这个商品,增加数量,如果不存在这个商品,新增item
+
+                            //region 更新原表的数据
+                            fromList[result.source.index].Count = needMoveItem.Count-moveCount;
+                            //检测是否在目标表中.
+                            let destItem = null;
+                            for (let i = 0; i < toList.length; i++) {
+                                if(toList[i].Name === needMoveItem.Name)
+                                {
+                                    destItem = toList[i];
+                                }
+                            }
+                            //endregion
+
+                            //如果目标中存在,加数量,如果目标中不存在,增加
+                            //region 存在目标
+                            if(destItem)
+                            {
+                                if(!destItem.Count)
+                                {
+                                    destItem.Count = 0;
+                                }
+                                destItem.Count += moveCount;
+                            }
+                                //endregion
+                            //region 不存在目标
+                            else
+                            {
+                                //需要创建一个新的item,新的guid.
+                                let newItemGuid = getGuid();
+                                let itemInNewBagNewLine = JSON.parse(JSON.stringify(needMoveItem));
+                                itemInNewBagNewLine.Count = moveCount;
+                                itemInNewBagNewLine.id = newItemGuid;
+                                // toList.push(itemInNewBagNewLine);
+                                toList.splice(result.destination.index,0,itemInNewBagNewLine);
+                            }
+                            //endregion
+                            this.setState({sourceItems:this.state.sourceItems,destItems:this.state.destItems});
+                        }
+                    }
+                }
+                //endregion
             }
-            //在原表中的位置
-            let needMoveItem = fromList.splice(result.source.index,1);
-            console.log('要移动的元素是:',needMoveItem);
-            toList.splice(result.destination.index,0,needMoveItem[0]);
-            this.setState({sourceItems:this.state.sourceItems,destItems:this.state.destItems});
+
         }
+        this.onItemsChanged(
+            [
+                this.state.sourceItems,
+                this.state.destItems,
+            ]
+        )
     }
 
 
@@ -441,12 +607,12 @@ export default class ItemsDND extends Component {
                                                         >
 
                                                             <Item item={item} isDragging={snapshot.isDragging}/>
-                                                            {
-                                                                <div hidden={!this.state.selectedItemId || this.state.selectedItemId !== item.id}
-                                                                     onClick={() => {
-                                                                         this.onClickRemoveBtn(index)
-                                                                     }}><div className={classNames.deleteBtn}>删除</div></div>
-                                                            }
+                                                            {/*{*/}
+                                                            {/*    <div hidden={!this.state.selectedItemId || this.state.selectedItemId !== item.id}*/}
+                                                            {/*         onClick={() => {*/}
+                                                            {/*             this.onClickRemoveBtn(index)*/}
+                                                            {/*         }}><div className={classNames.deleteBtn}>删除</div></div>*/}
+                                                            {/*}*/}
                                                         </div>
                                                     )}
                                                 </Draggable>
@@ -492,12 +658,12 @@ export default class ItemsDND extends Component {
                                                             }}
                                                         >
                                                             <Item item={item}/>
-                                                            {
-                                                                <div hidden={!this.state.selectedItemId || this.state.selectedItemId !== item.id}
-                                                                     onClick={() => {
-                                                                         this.onClickRemoveBtn(index)
-                                                                     }}><div className={classNames.deleteBtn}>删除</div></div>
-                                                            }
+                                                            {/*{*/}
+                                                            {/*    <div hidden={!this.state.selectedItemId || this.state.selectedItemId !== item.id}*/}
+                                                            {/*         onClick={() => {*/}
+                                                            {/*             this.onClickRemoveBtn(index)*/}
+                                                            {/*         }}><div className={classNames.deleteBtn}>删除</div></div>*/}
+                                                            {/*}*/}
                                                         </div>
                                                     )}
                                                 </Draggable>

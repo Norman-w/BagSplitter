@@ -28,7 +28,7 @@
   composes: item;
   background: linear-gradient(45deg, #061a22 25%, #203d51 0, #203d51 50%, #061a22 0, #061a22 75%, #203d51 0);
   background-size: 40px 40px;
-  filter: opacity(20%);
+  filter: opacity(60%);
   /*border: 1px dashed darkcyan;*/
   /*filter: blur(3px);*/
 }
