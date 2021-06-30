@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import classNames from './ItemsDND.module.css';
+// import itemClassNames from './Item.module.css'
 import Swal2 from 'sweetalert2';
 import Item from "./Item";
 
@@ -68,11 +69,16 @@ const reorder = (list, startIndex, endIndex) => {
 //endregion
 
 //region  设置样式:获取给定参数的list内的元素的样式
-const getItemStyle = (that, item, isDragging, draggableStyle) => {
+const getItemStyle = (that, item, isDragging, draggableStyle,snapshot,provided) => {
+  if (isDragging)
+  {
+    console.log('当前元素正在拖拽,参数1:',snapshot,'参数2:', provided)
+  }
     // console.log('获取样式:选择了吗?',item, '当前的选中的id是:', that.state)
     // console.log('是否一样?',item.id === that.state.selectedItemId)
     let isSelected = item.id === that.state.selectedItemId;
     let normal = {
+
         display:'flex',
         flexDirection:'row',
         justifyContent:'center',
@@ -81,10 +87,20 @@ const getItemStyle = (that, item, isDragging, draggableStyle) => {
         userSelect:'none',
         cursor:'pointer',
         borderRadius:'5px',
-        ...draggableStyle
+        marginBottom:'5px',
+        backgroundColor:'rgba(31,54,78,0.33)',
+      ...draggableStyle,
     }
     let draggingInfo = {
         // background: isDragging ? "#ccd795" : "#edf6f3",
+    }
+    if (isDragging)
+    {
+      draggingInfo =
+        {
+          // background: "linear-gradient(45deg, #cc95c0 25%, #dbd4b4 0, #dbd4b4 50%, #cc95c0 0, #cc95c0 75%, #dbd4b4 0);",
+          // backgroundSize: '40px 40px'
+        }
     }
     let selectedInfo;
     if (isSelected) {
@@ -182,15 +198,18 @@ export default class ItemsDND extends Component {
     onDragEnd(result) {
         // console.log('拖拽结束,result',result);
         // dropped outside the list
+      //没有被放置的目标,不进行数据变更
         if (!result.destination)
         {
             return;
         }
+        //还在原表还在原位,不进行数据变更
         if (result.source.droppableId !== null && result.destination.droppableId === result.source.droppableId && result.destination.index === result.source.index)
         {
             console.log('在同一个列表中,未改变位置');
             return;
         }
+        //在同一个表中拖拽排放顺序
         if (result.destination.droppableId === result.source.droppableId)
         {
             //如果在同一个表中拖拽排序
@@ -208,23 +227,29 @@ export default class ItemsDND extends Component {
             });
             console.log('在同一个表中 拖拽排序');
         }
+        //在不同的表中拖放,使数据能够穿梭
         else if(result.destination.droppableId !== result.source.droppableId)
         {
             //在不同的表中拖拽改变位置
             console.log('在不同表中 拖拽改变内容');
             let fromList = [];
             let toList = [];
+
+            //从新的包裹拽回到原始包裹中
             if (result.destination.droppableId === srcBagItemsListName)
             {
                 //往原包裹里面拽
                 fromList = this.state.destItems;
                 toList = this.state.sourceItems;
             }
+            //从原始包裹拽到新包裹中.
             else if(result.destination.droppableId === destBagItemsListName)
             {
                 //从原包裹里面拽到新包裹.
                 fromList = this.state.sourceItems;
                 toList = this.state.destItems;
+                //等待用户的返回.如果输入了有效的数量,才能够让数据继续变更,否则不可以.
+
             }
             //在原表中的位置
             let needMoveItem = fromList.splice(result.source.index,1);
@@ -407,13 +432,15 @@ export default class ItemsDND extends Component {
                                                             style={getItemStyle(this,
                                                                 item,
                                                                 snapshot.isDragging,
-                                                                provided.draggableProps.style
+                                                                provided.draggableProps.style,
+                                                              snapshot,provided
                                                             )}
                                                             onClick={(e) => {
                                                                 this.onSelected(item)
                                                             }}
                                                         >
-                                                            <Item item={item}/>
+
+                                                            <Item item={item} isDragging={snapshot.isDragging}/>
                                                             {
                                                                 <div hidden={!this.state.selectedItemId || this.state.selectedItemId !== item.id}
                                                                      onClick={() => {

@@ -3,9 +3,16 @@ import classNames from './Item.module.css'
 class Item extends Component {
     render() {
         let item = this.props.item;
+        let itemClass = classNames.item;
+        let itemCount = item.Count;
+        if (this.props.isDragging)
+        {
+          itemClass=classNames.itemSplitting;
+          itemCount = '?';
+        }
         return (
             <div
-                className={classNames.item}
+                className={itemClass}
             >
                 <div className={classNames.itemLeft}>
                     <img hidden={!item.PicPath} mode="aspectFill" className={classNames.itemImg} src={item.PicPath}/>
@@ -23,10 +30,9 @@ class Item extends Component {
                     <div className={classNames.itemPrice}>💰{item.Price}</div>
                     <div className={classNames.itemCount}>
                         <div>x</div>
-                        <div>{item.Count}</div>
+                        <div>{itemCount}</div>
                     </div>
                 </div>
-
             </div>
         );
     }
